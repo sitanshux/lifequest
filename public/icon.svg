@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Deep Navy Base -->
+  <rect width="64" height="64" rx="14" fill="#17233D"/>
+  
+  <!-- Subtle Inset Gold Border -->
+  <rect x="3.5" y="3.5" width="57" height="57" rx="10.5" fill="none" stroke="#B88732" stroke-width="1.5" stroke-opacity="0.45"/>
+  
+  <!-- Corner Insignia Pips -->
+  <rect x="8" y="8" width="2.5" height="2.5" transform="rotate(45 9.25 9.25)" fill="#B88732" fill-opacity="0.7"/>
+  <rect x="53.5" y="8" width="2.5" height="2.5" transform="rotate(45 54.75 9.25)" fill="#B88732" fill-opacity="0.7"/>
+  <rect x="8" y="53.5" width="2.5" height="2.5" transform="rotate(45 9.25 54.75)" fill="#B88732" fill-opacity="0.7"/>
+  <rect x="53.5" y="53.5" width="2.5" height="2.5" transform="rotate(45 54.75 54.75)" fill="#B88732" fill-opacity="0.7"/>
+  
+  <!-- Diagonal Secondary Rays -->
+  <polygon points="32,32 23,23 32,27" fill="#885E1A"/>
+  <polygon points="32,32 41,23 32,27" fill="#C99846"/>
+  <polygon points="32,32 41,41 37,32" fill="#885E1A"/>
+  <polygon points="32,32 41,23 37,32" fill="#C99846"/>
+  <polygon points="32,32 41,41 32,37" fill="#885E1A"/>
+  <polygon points="32,32 23,41 32,37" fill="#C99846"/>
+  <polygon points="32,32 23,23 27,32" fill="#C99846"/>
+  <polygon points="32,32 23,41 27,32" fill="#885E1A"/>
+
+  <!-- Primary Cardinal Rays (Faceted) -->
+  <!-- North Ray -->
+  <polygon points="32,10 32,32 26,32" fill="#E8BD6E"/>
+  <polygon points="32,10 38,32 32,32" fill="#9E6E22"/>
+  
+  <!-- South Ray -->
+  <polygon points="32,54 32,32 38,32" fill="#E8BD6E"/>
+  <polygon points="32,54 26,32 32,32" fill="#9E6E22"/>
+  
+  <!-- East Ray -->
+  <polygon points="54,32 32,32 32,26" fill="#E8BD6E"/>
+  <polygon points="54,32 32,38 32,32" fill="#9E6E22"/>
+  
+  <!-- West Ray -->
+  <polygon points="10,32 32,32 32,38" fill="#E8BD6E"/>
+  <polygon points="10,32 32,26 32,32" fill="#9E6E22"/>
+  
+  <!-- Center Core Jewel -->
+  <polygon points="32,27 37,32 32,37 27,32" fill="#FFFFFF"/>
+  <polygon points="32,29 35,32 32,35 29,32" fill="#B88732"/>
+</svg>

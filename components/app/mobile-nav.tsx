@@ -36,7 +36,7 @@ export function MobileNav() {
       className={cn(
         "md:hidden",
         "fixed bottom-0 left-0 right-0 z-40",
-        "bg-[hsl(var(--surface-1))]",
+        "bg-[#FAF8F3]",
         "border-t border-[hsl(var(--border))]",
         // Safe area padding for devices with home indicator
         "pb-[env(safe-area-inset-bottom)]",
@@ -59,19 +59,25 @@ export function MobileNav() {
                 aria-label={label}
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 h-full w-full",
-                  "text-[10px] font-medium tracking-wide",
-                  "transition-colors duration-100",
+                  "relative flex flex-col items-center justify-center gap-1 h-full w-full",
+                  "text-[9.5px] tracking-wider uppercase font-medium transition-colors duration-150",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] focus-visible:ring-inset",
-                  // Minimum touch target 44px (covered by h-16)
                   isActive
-                    ? "text-[hsl(var(--xp))]"
-                    : "text-[hsl(var(--foreground-subtle))] hover:text-[hsl(var(--foreground-muted))]"
+                    ? [
+                        "text-[hsl(var(--foreground))] font-semibold",
+                        "border-t-2 border-t-[hsl(var(--primary))]",
+                        "[&_svg]:text-[hsl(var(--primary))]",
+                      ]
+                    : [
+                        "text-[hsl(var(--foreground-muted))]",
+                        "border-t-2 border-t-transparent",
+                        "hover:text-[hsl(var(--foreground))]",
+                      ]
                 )}
               >
                 <Icon
-                  size={20}
-                  strokeWidth={isActive ? 2.5 : 1.75}
+                  size={18}
+                  strokeWidth={isActive ? 2.25 : 1.75}
                 />
                 <span>{label}</span>
               </Link>

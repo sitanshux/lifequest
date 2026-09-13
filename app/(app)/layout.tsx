@@ -28,7 +28,7 @@ export default async function AppLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--background))]">
+    <div className="min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))]">
       {/* Desktop sidebar — fixed, full height */}
       <AppSidebar />
 
@@ -39,9 +39,10 @@ export default async function AppLayout({
           className={[
             "min-h-screen",
             "px-4 py-6",
-            "md:px-8 md:py-8",
+            "md:px-10 md:py-10",
+            "max-w-7xl mx-auto",
             // Bottom padding for mobile nav bar
-            "pb-24 md:pb-8",
+            "pb-24 md:pb-12",
           ].join(" ")}
         >
           {children}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Scroll,
@@ -12,7 +12,6 @@ import {
   LogOut,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 interface NavItem {
@@ -47,28 +46,34 @@ export function AppSidebar() {
         "hidden md:flex flex-col",
         "fixed left-0 top-0 bottom-0 z-40",
         "w-sidebar",
-        "bg-[hsl(var(--surface-1))]",
+        "bg-[#FAF8F3]",
         "border-r border-[hsl(var(--border))]",
       )}
     >
-      {/* Wordmark */}
-      <div className="px-5 py-6 border-b border-[hsl(var(--border))]">
+      {/* Editorial Insignia Masthead */}
+      <div className="px-5 py-5 border-b border-[hsl(var(--border))]">
         <Link
           href="/dashboard"
-          className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] rounded"
+          className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] rounded-sm"
         >
-          <span
-            className="text-lg font-bold tracking-tight text-display"
-            style={{ fontFamily: "var(--font-barlow)" }}
-          >
-            Life<span className="text-[hsl(var(--xp))]">Quest</span>
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rotate-45 bg-[hsl(var(--gold))] inline-block shrink-0" />
+            <span
+              className="text-base font-semibold tracking-wider font-serif uppercase text-[hsl(var(--foreground))]"
+              style={{ fontFamily: "var(--font-newsreader), Georgia, serif" }}
+            >
+              LifeQuest
+            </span>
+          </div>
+          <p className="text-[10px] uppercase tracking-widest text-[hsl(var(--foreground-muted))] mt-1 pl-4 font-sans font-medium">
+            Character Chronicle
+          </p>
         </Link>
       </div>
 
-      {/* Navigation */}
+      {/* Navigation list */}
       <nav className="flex-1 px-3 py-4 overflow-y-auto" aria-label="App navigation">
-        <ul role="list" className="flex flex-col gap-0.5">
+        <ul role="list" className="flex flex-col gap-1">
           {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
             const isActive =
               href === "/dashboard"
@@ -81,31 +86,29 @@ export function AppSidebar() {
                   href={href}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded text-sm transition-colors duration-100",
+                    "relative flex items-center gap-3 px-3.5 py-2.5 rounded-sm text-xs tracking-wide uppercase transition-colors duration-150",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]",
                     isActive
                       ? [
-                          "bg-[hsl(var(--surface-3))]",
+                          "bg-[hsl(var(--surface-2))]",
                           "text-[hsl(var(--foreground))]",
-                          "font-medium",
-                          "[&_svg]:text-[hsl(var(--xp))]",
+                          "font-semibold",
+                          "border-l-2 border-l-[hsl(var(--primary))]",
+                          "[&_svg]:text-[hsl(var(--primary))]",
                         ]
                       : [
                           "text-[hsl(var(--foreground-muted))]",
+                          "font-medium",
                           "hover:bg-[hsl(var(--surface-2))]",
                           "hover:text-[hsl(var(--foreground))]",
+                          "[&_svg]:text-[hsl(var(--foreground-muted))]",
+                          "hover:[&_svg]:text-[hsl(var(--foreground))]",
+                          "border-l-2 border-l-transparent",
                         ]
                   )}
                 >
-                  <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />
+                  <Icon size={16} strokeWidth={isActive ? 2.25 : 1.75} />
                   <span>{label}</span>
-                  {/* Active indicator — left bar, not a glowing dot */}
-                  {isActive && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute left-0 w-[3px] h-5 rounded-r bg-[hsl(var(--xp))]"
-                    />
-                  )}
                 </Link>
               </li>
             );
@@ -118,13 +121,13 @@ export function AppSidebar() {
         <button
           onClick={handleSignOut}
           className={cn(
-            "flex items-center gap-3 w-full px-3 py-2.5 rounded text-sm transition-colors duration-100",
-            "text-[hsl(var(--foreground-subtle))]",
-            "hover:bg-[hsl(var(--surface-2))] hover:text-[hsl(var(--foreground-muted))]",
+            "flex items-center gap-3 w-full px-3.5 py-2.5 rounded-sm text-xs font-medium tracking-wide uppercase transition-colors duration-150",
+            "text-[hsl(var(--foreground-muted))]",
+            "hover:bg-[hsl(var(--surface-2))] hover:text-[hsl(var(--foreground))]",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]",
           )}
         >
-          <LogOut size={16} strokeWidth={2} />
+          <LogOut size={16} strokeWidth={1.75} />
           <span>Sign out</span>
         </button>
       </div>

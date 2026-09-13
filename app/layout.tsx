@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Barlow, DM_Sans } from "next/font/google";
+import { Barlow, DM_Sans, Newsreader } from "next/font/google";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -14,7 +14,24 @@ export const metadata: Metadata = {
   },
   description:
     "Turn your real-world responsibilities into an RPG-style progression system. Complete quests, earn XP and Gold, level up your life.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+  },
 };
+
+const newsreader = Newsreader({
+  variable: "--font-newsreader",
+  display: "swap",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  weight: ["400", "500", "600", "700"],
+});
 
 const barlow = Barlow({
   variable: "--font-barlow",
@@ -36,9 +53,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${barlow.variable} ${dmSans.variable} antialiased`}
+        className={`${newsreader.variable} ${barlow.variable} ${dmSans.variable} antialiased font-sans`}
       >
         {children}
       </body>

@@ -109,15 +109,20 @@ export default {
       },
 
       borderRadius: {
+        none: "0px",
         sm: "var(--radius-sm)",
         DEFAULT: "var(--radius)",
+        md: "var(--radius)",
         lg: "var(--radius-lg)",
         xl: "var(--radius-xl)",
       },
 
       fontFamily: {
-        display: ["var(--font-barlow)", "system-ui", "sans-serif"],
-        body: ["var(--font-dm-sans)", "system-ui", "sans-serif"],
+        serif: ["var(--font-newsreader)", "Newsreader", "Georgia", "Cambria", "serif"],
+        display: ["var(--font-newsreader)", "Newsreader", "Georgia", "Cambria", "serif"],
+        sans: ["var(--font-dm-sans)", "system-ui", "-apple-system", "sans-serif"],
+        body: ["var(--font-dm-sans)", "system-ui", "-apple-system", "sans-serif"],
+        mono: ["var(--font-barlow)", "ui-monospace", "monospace"],
       },
 
       /* Sidebar width token */

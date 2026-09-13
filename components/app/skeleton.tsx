@@ -16,7 +16,7 @@ export function Skeleton({ className }: SkeletonProps) {
   return (
     <div
       aria-hidden="true"
-      className={cn("skeleton rounded", className)}
+      className={cn("skeleton rounded-sm", className)}
     />
   );
 }
@@ -33,7 +33,7 @@ export function SkeletonQuestRow({ className }: SkeletonProps) {
       aria-hidden="true"
       className={cn(
         "flex items-center gap-4 px-4 py-3",
-        "border border-[hsl(var(--border))] rounded",
+        "border border-[hsl(var(--border))] rounded-sm",
         className
       )}
     >
@@ -55,7 +55,7 @@ export function SkeletonStatCard({ className }: SkeletonProps) {
       aria-hidden="true"
       className={cn(
         "flex flex-col gap-2 p-4",
-        "border border-[hsl(var(--border))] rounded",
+        "border border-[hsl(var(--border))] rounded-sm",
         className
       )}
     >

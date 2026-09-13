@@ -1,100 +1,104 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ============================================================
    LifeQuest Design Tokens
-   Dark-first. Semantic. No generic SaaS palette.
+   Light-first. Sophisticated editorial RPG character interface.
+   Ivory background, deep navy/ink text, antique gold progression,
+   muted blue interface accents, and restrained attribute palettes.
    ============================================================ */
 
 @layer base {
   :root {
     /* --- Surface --- */
-    --background: 222 14% 7%;        /* #0e0f12 — deep dark slate */
-    --surface-1: 222 12% 10%;        /* slightly lighter surface */
-    --surface-2: 222 10% 14%;        /* card / panel surface */
-    --surface-3: 222 8% 18%;         /* elevated surface */
+    --background: 45 33% 95%;         /* #F7F5EF — warm off-white / ivory */
+    --surface-1: 0 0% 100%;           /* #FFFFFF — crisp white surface */
+    --surface-2: 43 30% 93%;          /* #F3EFE6 — subtle warm tinted parchment */
+    --surface-3: 41 24% 87%;          /* #EAE4D6 — elevated / active parchment */
 
     /* --- Text --- */
-    --foreground: 220 15% 92%;       /* warm off-white */
-    --foreground-muted: 220 8% 55%;  /* secondary text */
-    --foreground-subtle: 220 6% 38%; /* disabled / hint text */
+    --foreground: 221 45% 16%;        /* #17233D — deep navy / ink */
+    --foreground-muted: 221 13% 46%;  /* #667085 — muted secondary text */
+    --foreground-subtle: 219 12% 61%; /* #8E97A8 — subtle hint / disabled text */
 
     /* --- Border --- */
-    --border: 222 10% 20%;           /* 1px border, restrained */
-    --border-strong: 222 10% 28%;    /* emphasized border */
+    --border: 42 20% 87%;             /* #E5E1D8 — thin warm border */
+    --border-strong: 41 16% 77%;      /* #CEC8BC — emphasized border */
 
-    /* --- XP / Progression --- */
-    --xp: 38 90% 52%;                /* amber — NOT gold gradient */
-    --xp-muted: 38 60% 30%;          /* XP bar track */
-    --xp-foreground: 222 14% 7%;     /* text on XP surface */
+    /* --- XP / Progression (Antique Gold) --- */
+    --xp: 38 57% 46%;                 /* #B88732 — restrained antique gold */
+    --xp-muted: 39 45% 88%;           /* #F2E7D3 — warm parchment track */
+    --xp-foreground: 221 45% 16%;
 
-    /* --- Gold / Currency --- */
-    --gold: 45 85% 58%;              /* warm yellow-gold */
-    --gold-muted: 45 55% 28%;
-    --gold-foreground: 222 14% 7%;
+    /* --- Gold / Currency (Antique Gold) --- */
+    --gold: 38 57% 46%;               /* #B88732 — antique gold */
+    --gold-muted: 39 45% 88%;
+    --gold-foreground: 221 45% 16%;
 
     /* --- Rank / Status --- */
-    --rank: 215 60% 55%;             /* cooler steel-blue, distinct from XP */
-    --rank-muted: 215 40% 22%;
-    --rank-foreground: 220 15% 92%;
+    --rank: 213 45% 31%;              /* #2C4D75 — deep heraldic navy */
+    --rank-muted: 213 35% 91%;        /* #E3EBF4 */
+    --rank-foreground: 221 45% 16%;
 
-    /* --- Attribute Colors — each semantically distinct --- */
-    --attr-intellect: 210 80% 60%;   /* clear blue */
-    --attr-intellect-muted: 210 50% 20%;
-    --attr-strength: 5 75% 58%;      /* deep red-orange */
-    --attr-strength-muted: 5 50% 20%;
-    --attr-wellness: 158 55% 48%;    /* muted teal-green */
-    --attr-wellness-muted: 158 40% 18%;
-    --attr-creativity: 280 60% 62%;  /* violet */
-    --attr-creativity-muted: 280 40% 22%;
-    --attr-discipline: 30 70% 52%;   /* warm amber-brown */
-    --attr-discipline-muted: 30 45% 20%;
+    /* --- Attribute Colors — refined, sophisticated, less saturated --- */
+    --attr-intellect: 207 55% 40%;    /* #2E6B9E — scholar azure */
+    --attr-intellect-muted: 206 50% 94%;
+    --attr-strength: 9 54% 43%;       /* #A84332 — terracotta iron */
+    --attr-strength-muted: 12 60% 95%;
+    --attr-wellness: 150 39% 35%;     /* #367C59 — sage forest green */
+    --attr-wellness-muted: 143 35% 94%;
+    --attr-creativity: 283 31% 43%;   /* #7B4B8E — vintage amethyst */
+    --attr-creativity-muted: 284 35% 95%;
+    --attr-discipline: 31 56% 40%;    /* #9E672C — warm bronze / umber */
+    --attr-discipline-muted: 34 50% 94%;
 
     /* --- Difficulty --- */
-    --diff-easy: 158 55% 48%;        /* matches wellness green */
-    --diff-medium: 45 85% 58%;       /* gold */
-    --diff-hard: 5 75% 58%;          /* strength red */
-    --diff-epic: 280 60% 62%;        /* creativity violet */
+    --diff-easy: 150 39% 35%;         /* wellness sage */
+    --diff-medium: 38 57% 46%;        /* antique gold */
+    --diff-hard: 9 54% 43%;           /* terracotta iron */
+    --diff-epic: 283 31% 43%;         /* vintage amethyst */
 
     /* --- Interactive States --- */
-    --primary: 38 90% 52%;           /* same as XP — primary action */
-    --primary-foreground: 222 14% 7%;
-    --primary-hover: 38 90% 44%;
+    --primary: 214 52% 43%;           /* #3567A8 — muted blue interface accent */
+    --primary-foreground: 0 0% 100%;  /* #FFFFFF */
+    --primary-hover: 214 53% 35%;     /* #2A548A */
 
-    --secondary: 222 10% 14%;
-    --secondary-foreground: 220 15% 92%;
-    --secondary-hover: 222 10% 18%;
+    --secondary: 43 30% 93%;          /* #F3EFE6 surface-2 */
+    --secondary-foreground: 221 45% 16%;
+    --secondary-hover: 41 24% 87%;
 
-    --muted: 222 10% 14%;
-    --muted-foreground: 220 8% 55%;
+    --muted: 43 30% 93%;
+    --muted-foreground: 221 13% 46%;
 
-    --accent: 222 10% 18%;
-    --accent-foreground: 220 15% 92%;
+    --accent: 43 30% 93%;
+    --accent-foreground: 221 45% 16%;
 
-    --destructive: 0 72% 50%;
-    --destructive-foreground: 220 15% 92%;
-    --destructive-muted: 0 50% 20%;
+    --destructive: 6 64% 44%;         /* #B93829 — restrained crimson */
+    --destructive-foreground: 0 0% 100%;
+    --destructive-muted: 6 60% 95%;
 
-    --success: 142 65% 40%;
-    --success-foreground: 220 15% 92%;
-    --success-muted: 142 45% 18%;
+    --success: 150 39% 35%;           /* #367C59 — forest sage */
+    --success-foreground: 0 0% 100%;
+    --success-muted: 143 35% 94%;
 
     /* --- Popover / Card (shadcn compat) --- */
-    --card: 222 12% 10%;
-    --card-foreground: 220 15% 92%;
-    --popover: 222 12% 10%;
-    --popover-foreground: 220 15% 92%;
+    --card: 0 0% 100%;
+    --card-foreground: 221 45% 16%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 221 45% 16%;
 
     /* --- Input --- */
-    --input: 222 10% 20%;
-    --ring: 38 90% 52%;              /* focus ring = XP amber */
+    --input: 42 20% 87%;              /* #E5E1D8 */
+    --ring: 214 52% 43%;              /* #3567A8 — blue focus ring */
 
-    /* --- Radius (restrained — game console feel) --- */
-    --radius: 0.375rem;              /* 6px base — moderate, not giant */
-    --radius-sm: 0.25rem;            /* 4px */
-    --radius-lg: 0.5rem;             /* 8px */
-    --radius-xl: 0.75rem;            /* 12px — used sparingly */
+    /* --- Radius (rectangular / small-radius editorial feel) --- */
+    --radius: 0.25rem;                /* 4px */
+    --radius-sm: 0.125rem;            /* 2px */
+    --radius-lg: 0.375rem;            /* 6px */
+    --radius-xl: 0.5rem;              /* 8px */
   }
 }
 
@@ -111,32 +115,42 @@
   html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: var(--font-dm-sans), system-ui, sans-serif;
-    font-size: 0.9375rem;  /* 15px — slightly tighter than browser default */
+    font-family: var(--font-dm-sans), system-ui, -apple-system, sans-serif;
+    font-size: 0.9375rem;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Typography hierarchy */
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-barlow), system-ui, sans-serif;
+  /* Editorial typography hierarchy */
+  h1, h2, h3 {
+    font-family: var(--font-newsreader), "Newsreader", "Georgia", "Cambria", serif;
     font-weight: 600;
     line-height: 1.25;
     color: hsl(var(--foreground));
+    letter-spacing: -0.015em;
   }
 
-  h1 { font-size: 2rem;    font-weight: 700; letter-spacing: -0.025em; }
-  h2 { font-size: 1.5rem;  font-weight: 600; letter-spacing: -0.02em;  }
+  h4, h5, h6 {
+    font-family: var(--font-dm-sans), system-ui, sans-serif;
+    font-weight: 600;
+    line-height: 1.35;
+    color: hsl(var(--foreground));
+  }
+
+  h1 { font-size: 1.875rem; font-weight: 600; letter-spacing: -0.02em; }
+  h2 { font-size: 1.375rem; font-weight: 600; letter-spacing: -0.015em; }
   h3 { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.01em; }
   h4 { font-size: 0.9375rem; font-weight: 600; }
-  h5 { font-size: 0.875rem;  font-weight: 500; }
-  h6 { font-size: 0.8125rem; font-weight: 500; }
+  h5 { font-size: 0.875rem;  font-weight: 600; }
+  h6 { font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
 
   p {
     color: hsl(var(--foreground-muted));
@@ -144,15 +158,17 @@
   }
 
   a {
-    color: hsl(var(--xp));
+    color: hsl(var(--primary));
     text-decoration: none;
+    transition: color 0.15s ease;
   }
 
   a:hover {
+    color: hsl(var(--primary-hover));
     text-decoration: underline;
   }
 
-  /* Focus — visible, not generic blue */
+  /* Focus — visible, restrained, accessible */
   :focus-visible {
     outline: 2px solid hsl(var(--ring));
     outline-offset: 2px;
@@ -177,15 +193,19 @@
 @layer utilities {
   /* Text hierarchy */
   .text-display {
-    font-family: var(--font-barlow), system-ui, sans-serif;
-    font-weight: 700;
-    letter-spacing: -0.03em;
+    font-family: var(--font-newsreader), "Newsreader", "Georgia", "Cambria", serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
   }
 
   .text-heading {
-    font-family: var(--font-barlow), system-ui, sans-serif;
+    font-family: var(--font-newsreader), "Newsreader", "Georgia", "Cambria", serif;
     font-weight: 600;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.015em;
+  }
+
+  .font-editorial {
+    font-family: var(--font-newsreader), "Newsreader", "Georgia", "Cambria", serif;
   }
 
   .text-muted {
@@ -208,7 +228,7 @@
     background-color: hsl(var(--xp));
     height: 100%;
     border-radius: var(--radius-sm);
-    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.4s ease-out;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -217,11 +237,11 @@
     }
   }
 
-  /* Skeleton shimmer */
+  /* Skeleton shimmer — warm ivory */
   .skeleton {
     background-color: hsl(var(--surface-2));
-    border-radius: var(--radius);
-    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: var(--radius-sm);
+    animation: shimmer 1.8s ease-in-out infinite;
     background: linear-gradient(
       90deg,
       hsl(var(--surface-2)) 25%,

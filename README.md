@@ -13,7 +13,7 @@
 
 ## Live Links
 
-- **Live Deployed App:** [To be added after deployment]
+- **Live Deployed App:** https://lifequest-weld-nu.vercel.app
 - **Walkthrough Video:** [To be added after recording]
 
 ---
