@@ -11,10 +11,9 @@
 
 ---
 
-## Live Links
+## Live Link
 
 - **Live Deployed App:** https://lifequest-weld-nu.vercel.app
-- **Walkthrough Video:** [To be added after recording]
 
 ---
 
@@ -33,7 +32,7 @@
 11. [Production Deployment (Vercel)](#production-deployment-vercel)
 12. [Project Structure](#project-structure)
 13. [Accessibility & Responsiveness](#accessibility--responsiveness)
-14. [License](#license)
+14. [AI Tools Disclosure](#ai--tools--disclosure)
 
 ---
 
@@ -209,7 +208,7 @@ Create a `.env.local` file in the project root by copying `.env.example`:
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/lifequest.git
+   git clone https://github.com/sitanshux/lifequest.git
    cd lifequest
    ```
 
@@ -322,13 +321,11 @@ lifequest/
 
 - **Responsive Layout:** Adaptive navigation featuring a full desktop sidebar (`AppSidebar`) on wide viewports and a bottom navigation bar (`MobileNav`) for mobile screens, with sign-out accessible via both the desktop sidebar and the mobile character sheet.
 - **Clear Visual Feedback:** Visual feedback on interactions including quest completion toasts, active route highlights, achievement unlock notifications, and distinct state badges.
-- **Consistent Theming:** Dark mode UI styled with semantic CSS custom properties and Tailwind CSS for readable contrast, structured typography, and clear visual hierarchy.
+- **Consistent Theming:** Light mode UI styled with semantic CSS custom properties and Tailwind CSS for readable contrast, structured typography, and clear visual hierarchy.
 
 ---
 
-## License
-
-This project was created for the **LifeQuest Hackathon**.
+ 
 
 ## AI Tools Disclosure
 
