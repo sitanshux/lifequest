@@ -33,13 +33,15 @@ export default async function AppLayout({
       <AppSidebar />
 
       {/* Main content — offset by sidebar on desktop */}
-      <div className="md:pl-sidebar">
+      <div className="md:pl-[220px] w-full">
         <main
           id="main-content"
           className={[
             "min-h-screen",
             "px-4 py-6",
-            "md:px-10 md:py-10",
+            "sm:px-6",
+            "md:px-8 md:py-8",
+            "lg:px-10 lg:py-10",
             "max-w-7xl mx-auto",
             // Bottom padding for mobile nav bar
             "pb-24 md:pb-12",

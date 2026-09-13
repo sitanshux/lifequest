@@ -3,17 +3,19 @@
 /**
  * QuestRow — a single quest item.
  *
+ * Visual hierarchy:
+ * 1. completion control (tactile checkbox)
+ * 2. quest title (editorial serif typography)
+ * 3. description (readable muted text)
+ * 4. attribute / category (colored tag)
+ * 5. difficulty badge
+ * 6. XP & Gold rewards (scannable antique gold values)
+ * 7. secondary actions (+ Today / – Today)
+ *
  * Visual states:
- * - completed: muted, strikethrough title, check mark
- * - inToday: subtle amber left accent
- * - active (default): normal
- *
- * Actions exposed (conditional on state):
- * - Complete quest
- * - Add to Today / Remove from Today
- *
- * Completing is disabled once completed or while in-flight.
- * Does not scale on hover. No pill clutter.
+ * - active: actionable, clear borders, subtle hover
+ * - inToday: highlighted with amber left indicator
+ * - completed: archived record, subdued but clearly legible, reward tokens preserved
  */
 
 import { useState } from "react";
@@ -72,43 +74,42 @@ export function QuestRow({
   return (
     <div
       className={cn(
-        "relative flex items-start gap-3 px-4 py-3 rounded transition-colors duration-100",
-        "border",
+        "group relative flex items-start gap-3.5 px-4 py-3.5 rounded-sm transition-colors duration-150",
         quest.completed
-          ? "border-[hsl(var(--border))] opacity-50"
+          ? "border border-[hsl(var(--border))] bg-[hsl(var(--surface-2)/0.6)] opacity-85"
           : inToday
-            ? "border-[hsl(var(--xp)/0.35)] bg-[hsl(var(--xp)/0.04)]"
-            : "border-[hsl(var(--border))] hover:border-[hsl(var(--border-strong))]"
+            ? "border border-[hsl(var(--xp)/0.45)] bg-[hsl(var(--surface-1))] shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
+            : "border border-[hsl(var(--border))] hover:border-[hsl(var(--border-strong))] bg-[hsl(var(--surface-1))] shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
       )}
     >
-      {/* TODAY indicator bar */}
+      {/* TODAY left accent bar */}
       {inToday && !quest.completed && (
         <span
           aria-hidden="true"
-          className="absolute left-0 top-3 bottom-3 w-[3px] rounded-r"
+          className="absolute left-0 top-0 bottom-0 w-[3px] rounded-l-sm"
           style={{ backgroundColor: "hsl(var(--xp))" }}
         />
       )}
 
-      {/* Complete button */}
+      {/* 1. Tactile completion control */}
       <button
         onClick={handleComplete}
         disabled={quest.completed || completing}
-        aria-label={quest.completed ? `${quest.title} — completed` : `Complete: ${quest.title}`}
+        aria-label={quest.completed ? `Completed: ${quest.title}` : `Complete: ${quest.title}`}
         className={cn(
           "mt-0.5 w-5 h-5 rounded-sm border-2 flex-shrink-0 flex items-center justify-center",
-          "transition-colors duration-100",
+          "transition-all duration-150",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]",
           quest.completed
-            ? "border-[hsl(var(--success))] bg-[hsl(var(--success)/0.15)]"
+            ? "border-[hsl(var(--success))] bg-[hsl(var(--success)/0.15)] text-[hsl(var(--success))]"
             : completing
-              ? "border-[hsl(var(--xp))] animate-pulse"
-              : "border-[hsl(var(--border-strong))] hover:border-[hsl(var(--xp))]"
+              ? "border-[hsl(var(--xp))] bg-[hsl(var(--xp)/0.08)] animate-pulse"
+              : "border-[hsl(var(--border-strong))] bg-white hover:border-[hsl(var(--xp))] hover:bg-[hsl(var(--xp)/0.06)]"
         )}
       >
         {quest.completed && (
           <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
-            <path d="M1 4L3.5 6.5L9 1.5" stroke="hsl(var(--success))" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M1 4L3.5 6.5L9 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         )}
         {completing && (
@@ -116,56 +117,90 @@ export function QuestRow({
         )}
       </button>
 
-      {/* Quest content */}
+      {/* 2. Quest body */}
       <div className="flex-1 min-w-0">
-        <p
+        <h4
           className={cn(
-            "text-sm font-medium leading-snug",
-            quest.completed && "line-through text-[hsl(var(--foreground-subtle))]"
+            "text-[15px] font-semibold leading-snug tracking-[-0.01em]",
+            quest.completed
+              ? "line-through text-[hsl(var(--foreground-muted))]"
+              : "text-[hsl(var(--foreground))]"
           )}
-          style={{ color: quest.completed ? undefined : "hsl(var(--foreground))" }}
+          style={{ fontFamily: "var(--font-newsreader), Georgia, serif" }}
         >
           {quest.title}
-        </p>
+        </h4>
 
         {quest.description && (
           <p
-            className="text-xs mt-0.5 line-clamp-1"
-            style={{ color: "hsl(var(--foreground-subtle))" }}
+            className={cn(
+              "text-xs mt-1 line-clamp-2 leading-relaxed",
+              quest.completed ? "text-[hsl(var(--foreground-subtle))]" : "text-[hsl(var(--foreground-muted))]"
+            )}
           >
             {quest.description}
           </p>
         )}
 
-        {/* Meta row */}
-        <div className="flex items-center gap-3 mt-1.5 flex-wrap">
-          <span className="text-[11px] font-medium" style={{ color: attrColor }}>
+        {/* 3. Metadata & rewards row */}
+        <div className="flex items-center gap-2 sm:gap-3 mt-2 flex-wrap">
+          {/* Category */}
+          <span
+            className="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-semibold uppercase tracking-wider border"
+            style={{
+              color: attrColor,
+              borderColor: `color-mix(in srgb, ${attrColor} 30%, transparent)`,
+              backgroundColor: `color-mix(in srgb, ${attrColor} 8%, transparent)`,
+            }}
+          >
             {attributeLabel(quest.category)}
           </span>
-          <span className="text-[11px] font-medium" style={{ color: diffColor }}>
+
+          {/* Difficulty */}
+          <span
+            className="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-semibold uppercase tracking-wider border"
+            style={{
+              color: diffColor,
+              borderColor: `color-mix(in srgb, ${diffColor} 30%, transparent)`,
+              backgroundColor: `color-mix(in srgb, ${diffColor} 8%, transparent)`,
+            }}
+          >
             {difficultyLabel(quest.difficulty)}
           </span>
-          <span className="text-[11px]" style={{ color: "hsl(var(--xp))" }}>
+
+          <span className="text-[hsl(var(--border-strong))] text-xs select-none">·</span>
+
+          {/* XP Reward */}
+          <span
+            className="inline-flex items-center gap-1 text-[11px] font-bold tabular-nums text-[hsl(var(--xp))]"
+            style={{ fontFamily: "var(--font-barlow), sans-serif" }}
+          >
             +{quest.xp_reward} XP
           </span>
-          <span className="text-[11px]" style={{ color: "hsl(var(--gold))" }}>
+
+          {/* Gold Reward */}
+          <span
+            className="inline-flex items-center gap-1 text-[11px] font-bold tabular-nums text-[hsl(var(--gold))]"
+            style={{ fontFamily: "var(--font-barlow), sans-serif" }}
+          >
             +{quest.gold_reward} Gold
           </span>
         </div>
       </div>
 
-      {/* TODAY action */}
+      {/* 4. Secondary Action: Today toggle */}
       {!quest.completed && (
         <div className="flex-shrink-0 self-center">
           {inToday ? (
             <button
               onClick={() => onRemoveFromToday(quest.id)}
-              aria-label="Remove from Today"
+              aria-label={`Remove "${quest.title}" from Today`}
               title="Remove from Today"
               className={cn(
-                "text-[11px] font-medium px-2 py-1 rounded-sm",
-                "text-[hsl(var(--foreground-subtle))] hover:text-[hsl(var(--foreground-muted))]",
-                "border border-transparent hover:border-[hsl(var(--border))]",
+                "text-[11px] font-medium px-2.5 py-1 rounded-sm",
+                "text-[hsl(var(--foreground-subtle))] hover:text-[hsl(var(--foreground))]",
+                "border border-[hsl(var(--border))] hover:border-[hsl(var(--border-strong))]",
+                "bg-[hsl(var(--surface-2)/0.6)] hover:bg-[hsl(var(--surface-2))]",
                 "transition-colors duration-100",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
               )}
@@ -175,12 +210,13 @@ export function QuestRow({
           ) : (
             <button
               onClick={() => onAddToToday(quest.id)}
-              aria-label="Add to Today"
+              aria-label={`Add "${quest.title}" to Today`}
               title="Add to Today"
               className={cn(
-                "text-[11px] font-medium px-2 py-1 rounded-sm",
-                "text-[hsl(var(--foreground-subtle))] hover:text-[hsl(var(--xp))]",
-                "border border-transparent hover:border-[hsl(var(--xp)/0.4)]",
+                "text-[11px] font-medium px-2.5 py-1 rounded-sm",
+                "text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-hover))]",
+                "border border-[hsl(var(--primary)/0.3)] hover:border-[hsl(var(--primary))]",
+                "bg-[hsl(var(--primary)/0.05)] hover:bg-[hsl(var(--primary)/0.1)]",
                 "transition-colors duration-100",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
               )}

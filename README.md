@@ -329,3 +329,13 @@ lifequest/
 ## License
 
 This project was created for the **LifeQuest Hackathon**.
+
+## AI Tools Disclosure
+
+AI-assisted development tools were used during the development of the proposed product.
+
+Specifically, Antigravity AI was used as a development assistant at various stages including frontend and backend development, database design and integration, authentication, UI/UX prototyping, debugging and refactoring, and development process orchestration.
+
+The product concept, feature set, design direction, implementation specifics, testing, and final review were directed and evaluated  by the development team.
+
+

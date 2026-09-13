@@ -3,20 +3,23 @@
 /**
  * DashboardClient — reactive dashboard that updates on quest completion.
  *
- * Receives profile + today's quests from the server.
- * On quest completion, updates local XP/Gold state immediately from
- * the server action result (no page reload needed).
- * XP bar animates to new value.
+ * Visual System:
+ * - Editorial Daily Command Center composition
+ * 1. Level + XP Progression Track (Hero status with milestone ticks)
+ * 2. Today's Campaign Quests (Prominent interactive directive board)
+ * 3. Character Status Folio (Gold treasury, streak, rank progression, lifetime XP)
+ * 4. Core Attributes Ledger (5 character attributes with tailored colors)
+ *
+ * All mutations remain strictly via server actions (`completeQuest`).
  */
 
 import { useState, useCallback } from "react";
 import { XpBar } from "@/components/dashboard/xp-bar";
-import { StatCard } from "@/components/dashboard/stat-card";
 import { QuestRow } from "@/components/quests/quest-row";
 import { CompletionToast } from "@/components/quests/completion-toast";
 import { AchievementToast } from "@/components/achievements/achievement-toast";
 import { completeQuest } from "@/app/actions/complete-quest";
-import { rankLabel, attributeLabel } from "@/lib/game/logic";
+import { rankLabel, nextRankThreshold, attributeLabel } from "@/lib/game/logic";
 import { useToday } from "@/lib/hooks/use-today";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -108,8 +111,15 @@ export function DashboardClient({ profile, todayQuestCandidates }: DashboardClie
     ? quests.filter((q) => isInToday(q.id))
     : [];
 
+  const activeTodayQuests = todayQuests.filter((q) => !q.completed);
+  const completedTodayQuests = todayQuests.filter((q) => q.completed);
+
   // Max attribute value for relative bar scaling
   const maxAttr = Math.max(10, ...Object.values(liveAttrs));
+
+  // Rank progression calculation
+  const nextStreakReq = nextRankThreshold(liveStreak);
+  const daysToNextRank = nextStreakReq !== null ? Math.max(0, nextStreakReq - liveStreak) : null;
 
   return (
     <>
@@ -127,147 +137,340 @@ export function DashboardClient({ profile, todayQuestCandidates }: DashboardClie
         />
       )}
 
-      <div className="max-w-5xl mx-auto space-y-8">
-        {/* ── 1. Level + XP — primary progression ── */}
-        <section aria-labelledby="progression-heading">
-          <XpBar totalXp={liveXp} className="max-w-lg" />
-        </section>
-
-        {/* ── 2. Stats row ── */}
-        <section aria-labelledby="stats-heading">
-          <h2
-            id="stats-heading"
-            className="text-[11px] font-semibold tracking-widest uppercase mb-3"
-            style={{ color: "hsl(var(--foreground-subtle))", letterSpacing: "0.1em" }}
-          >
-            Stats
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <StatCard
-              label="Gold"
-              value={liveGold.toLocaleString()}
-              valueColor="hsl(var(--gold))"
-            />
-            <StatCard
-              label="Streak"
-              value={`${liveStreak}d`}
-              valueColor={liveStreak >= 7 ? "hsl(var(--xp))" : undefined}
-              sub={liveStreak === 1 ? "day" : "days"}
-            />
-            <StatCard
-              label="Rank"
-              value={rankLabel(liveRank)}
-              valueColor="hsl(var(--rank))"
-            />
-            <StatCard
-              label="Total XP"
-              value={liveXp.toLocaleString()}
-              valueColor="hsl(var(--xp))"
-            />
+      <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
+        {/* ── 1. Priority One: Level + XP Progression Hero ── */}
+        <section
+          aria-labelledby="progression-heading"
+          className="border border-[hsl(var(--border))] bg-[hsl(var(--surface-1))] p-5 sm:p-6 rounded-sm shadow-[0_1px_3px_rgba(0,0,0,0.03)] bg-cartographic"
+        >
+          <div className="flex items-center justify-between border-b border-[hsl(var(--border))] pb-3 mb-4">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[hsl(var(--xp))]" aria-hidden="true" />
+              <span
+                id="progression-heading"
+                className="text-[10px] font-bold tracking-[0.14em] uppercase text-[hsl(var(--foreground-subtle))]"
+              >
+                            Campaign Dossier
+              </span>
+            </div>
+            <div className="text-[11px] font-medium text-[hsl(var(--foreground-subtle))]">
+              Campaign Day <strong className="text-[hsl(var(--foreground))] font-semibold">{liveStreak}</strong>
+            </div>
           </div>
+
+          <XpBar totalXp={liveXp} />
         </section>
 
-        {/* ── 3. Attributes ── */}
-        <section aria-labelledby="attributes-heading">
-          <h2
-            id="attributes-heading"
-            className="text-[11px] font-semibold tracking-widest uppercase mb-3"
-            style={{ color: "hsl(var(--foreground-subtle))", letterSpacing: "0.1em" }}
-          >
-            Attributes
-          </h2>
-          <div className="space-y-2.5 max-w-sm">
-            {ATTR_ORDER.map((attr) => {
-              const value = liveAttrs[attr];
-              const pct = Math.min(100, Math.round((value / maxAttr) * 100));
-              return (
-                <div key={attr} className="flex items-center gap-3">
-                  <span
-                    className="text-xs font-medium w-20 flex-shrink-0"
-                    style={{ color: "hsl(var(--foreground-muted))" }}
+        {/* ── Main 2-Column Command Grid ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* ── 2. Priority Two: Today's Quests (Main interactive section) ── */}
+          <section aria-labelledby="today-heading" className="lg:col-span-7 xl:col-span-8 space-y-4">
+            <div className="flex items-baseline justify-between gap-4 border-b border-[hsl(var(--border))] pb-3">
+              <div>
+                <h2
+                  id="today-heading"
+                  className="text-xl sm:text-2xl font-bold tracking-tight text-[hsl(var(--foreground))]"
+                  style={{ fontFamily: "var(--font-newsreader), Georgia, serif" }}
+                >
+                  Today&apos;s Campaign Quests
+                </h2>
+                <p className="text-xs text-[hsl(var(--foreground-muted))] mt-0.5">
+                  {isReady ? (
+                    <>
+                      <span className="font-semibold text-[hsl(var(--foreground))]">{activeTodayQuests.length}</span> active
+                      {" · "}
+                      <span className="font-semibold text-[hsl(var(--foreground))]">{completedTodayQuests.length}</span> completed today
+                    </>
+                  ) : (
+                    "Consulting active directives…"
+                  )}
+                </p>
+              </div>
+
+              <Link
+                href="/quests"
+                className={cn(
+                  "text-xs font-semibold px-3 py-1.5 rounded-sm",
+                  "text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-hover))]",
+                  "border border-[hsl(var(--primary)/0.3)] hover:border-[hsl(var(--primary))]",
+                  "bg-[hsl(var(--primary)/0.04)] hover:bg-[hsl(var(--primary)/0.08)]",
+                  "transition-colors duration-100 flex items-center gap-1 flex-shrink-0",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                )}
+              >
+                All Quests ({quests.length}) →
+              </Link>
+            </div>
+
+            {!isReady ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="h-16 rounded-sm border border-[hsl(var(--border))] skeleton"
+                  />
+                ))}
+              </div>
+            ) : todayQuests.length === 0 ? (
+              <div className="border border-dashed border-[hsl(var(--border-strong))] bg-[hsl(var(--surface-1))] p-8 sm:p-10 text-center rounded-sm space-y-3">
+                <div className="w-10 h-10 mx-auto rounded-full bg-[hsl(var(--surface-2))] border border-[hsl(var(--border))] flex items-center justify-center text-[hsl(var(--foreground-subtle))]">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" />
+                    <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+                  </svg>
+                </div>
+                <div className="space-y-1">
+                  <h3
+                    className="text-base font-semibold text-[hsl(var(--foreground))]"
+                    style={{ fontFamily: "var(--font-newsreader), Georgia, serif" }}
                   >
-                    {attributeLabel(attr)}
-                  </span>
-                  <div className="flex-1 xp-bar-track">
-                    <div
-                      className="h-full rounded-sm transition-all duration-500"
-                      style={{
-                        width: `${pct}%`,
-                        backgroundColor: ATTR_COLORS[attr],
-                      }}
-                    />
+                    No Directives Assigned to Today&apos;s Campaign
+                  </h3>
+                  <p className="text-xs text-[hsl(var(--foreground-muted))] max-w-sm mx-auto leading-relaxed">
+                    Select quests from your master log to direct your daily focus and claim experience & gold upon completion.
+                  </p>
+                </div>
+                <div className="pt-2">
+                  <Link
+                    href="/quests"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-sm bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] hover:bg-[hsl(var(--primary-hover))] transition-colors duration-100 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                  >
+                    Assign Quests from Log →
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {/* Active quests */}
+                {activeTodayQuests.length > 0 ? (
+                  <div className="space-y-2.5">
+                    {activeTodayQuests.map((quest) => (
+                      <QuestRow
+                        key={quest.id}
+                        quest={quest}
+                        inToday={true}
+                        onComplete={handleComplete}
+                        onAddToToday={addToToday}
+                        onRemoveFromToday={removeFromToday}
+                        onCompletionResult={handleCompletionResult}
+                      />
+                    ))}
                   </div>
-                  <span
-                    className="text-xs font-medium w-6 text-right tabular-nums"
-                    style={{ color: "hsl(var(--foreground-subtle))" }}
+                ) : (
+                  <div className="border border-[hsl(var(--border))] bg-[hsl(var(--surface-1))] p-5 text-center rounded-sm">
+                    <p className="text-xs font-medium text-[hsl(var(--success))]">
+                      ✓ All today&apos;s campaign directives have been completed!
+                    </p>
+                  </div>
+                )}
+
+                {/* Completed today section */}
+                {completedTodayQuests.length > 0 && (
+                  <div className="pt-3 space-y-2">
+                    <div className="flex items-center justify-between border-b border-[hsl(var(--border))] pb-1.5">
+                      <span
+                        className="text-[10px] font-bold tracking-[0.14em] uppercase text-[hsl(var(--foreground-subtle))]"
+                      >
+                        Completed Today ({completedTodayQuests.length})
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {completedTodayQuests.map((quest) => (
+                        <QuestRow
+                          key={quest.id}
+                          quest={quest}
+                          inToday={true}
+                          onComplete={handleComplete}
+                          onAddToToday={addToToday}
+                          onRemoveFromToday={removeFromToday}
+                          onCompletionResult={handleCompletionResult}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* ── Right Column: Character Status & Attributes (lg:col-span-5 xl:col-span-4) ── */}
+          <div className="lg:col-span-5 xl:col-span-4 space-y-6">
+            {/* ── 3. Priority Three: Character Status Ledger (Gold / Streak / Rank / XP) ── */}
+            <section
+              aria-labelledby="status-folio-heading"
+              className="border border-[hsl(var(--border))] bg-[hsl(var(--surface-1))] p-5 rounded-sm shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-4"
+            >
+              <div className="flex items-center justify-between border-b border-[hsl(var(--border))] pb-2.5">
+                <h3
+                  id="status-folio-heading"
+                  className="text-[10px] font-bold tracking-[0.14em] uppercase text-[hsl(var(--foreground-subtle))]"
+                >
+                  Character Status // Standing
+                </h3>
+                <span className="text-[10px] font-semibold tracking-wider uppercase text-[hsl(var(--foreground-subtle))]">
+                  Folio
+                </span>
+              </div>
+
+              {/* Treasury (Gold) */}
+              <div className="space-y-1.5 bg-[hsl(var(--surface-2)/0.5)] p-3 rounded-sm border border-[hsl(var(--border))]">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-[10px] font-bold tracking-widest uppercase text-[hsl(var(--foreground-subtle))]">
+                    Treasury
+                  </span>
+                  <Link
+                    href="/shop"
+                    className="text-[11px] font-semibold text-[hsl(var(--primary))] hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[hsl(var(--ring))]"
                   >
-                    {value}
+                    Visit Shop →
+                  </Link>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span
+                    className="text-2xl font-bold tabular-nums leading-none text-[hsl(var(--gold))]"
+                    style={{ fontFamily: "var(--font-barlow), sans-serif" }}
+                  >
+                    {liveGold.toLocaleString()}
+                  </span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--gold))]">
+                    Gold
                   </span>
                 </div>
-              );
-            })}
-          </div>
-        </section>
+                <p className="text-[11px] text-[hsl(var(--foreground-subtle))] leading-tight">
+                  Available currency for equipment & rewards.
+                </p>
+              </div>
 
-        {/* ── 4. TODAY quests ── */}
-        <section aria-labelledby="today-heading">
-          <div className="flex items-baseline justify-between mb-3">
-            <h2
-              id="today-heading"
-              className="text-[11px] font-semibold tracking-widest uppercase"
-              style={{ color: "hsl(var(--foreground-subtle))", letterSpacing: "0.1em" }}
-            >
-              Today
-            </h2>
-            <Link
-              href="/quests"
-              className={cn(
-                "text-xs font-medium",
-                "text-[hsl(var(--foreground-subtle))] hover:text-[hsl(var(--foreground-muted))]",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] rounded"
-              )}
-            >
-              All Quests →
-            </Link>
-          </div>
+              {/* Streak & Rank Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Active Streak */}
+                <div className="border border-[hsl(var(--border))] p-3 rounded-sm bg-[hsl(var(--surface-1))] space-y-1 min-w-0">
+                  <span className="text-[10px] font-bold tracking-widest uppercase text-[hsl(var(--foreground-subtle))] block">
+                    Streak
+                  </span>
+                  <div className="flex items-baseline gap-1">
+                    <span
+                      className="text-lg sm:text-xl font-bold tabular-nums leading-none text-[hsl(var(--foreground))]"
+                      style={{ fontFamily: "var(--font-barlow), sans-serif" }}
+                    >
+                      {liveStreak}
+                    </span>
+                    <span className="text-xs text-[hsl(var(--foreground-muted))] font-medium">
+                      {liveStreak === 1 ? "day" : "days"}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-[hsl(var(--foreground-subtle))] leading-tight">
+                    Consecutive active campaign days.
+                  </p>
+                </div>
 
-          {!isReady ? (
-            <div className="space-y-2">
-              {[1, 2].map((i) => (
-                <div
-                  key={i}
-                  className="h-14 rounded border border-[hsl(var(--border))] skeleton"
-                />
-              ))}
-            </div>
-          ) : todayQuests.length === 0 ? (
-            <div className="py-8 text-center">
-              <p className="text-sm" style={{ color: "hsl(var(--foreground-subtle))" }}>
-                No quests selected for today.{" "}
-                <Link
-                  href="/quests"
-                  className="text-[hsl(var(--xp))] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] rounded"
+                {/* Heraldic Rank */}
+                <div className="border border-[hsl(var(--border))] p-3 rounded-sm bg-[hsl(var(--surface-1))] space-y-1 min-w-0">
+                  <span className="text-[10px] font-bold tracking-widest uppercase text-[hsl(var(--foreground-subtle))] block">
+                    Standing
+                  </span>
+                  <div className="flex items-baseline gap-1">
+                    <span
+                      className="text-lg sm:text-xl font-bold leading-none text-[hsl(var(--rank))]"
+                      style={{ fontFamily: "var(--font-barlow), sans-serif" }}
+                    >
+                      {rankLabel(liveRank)}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-[hsl(var(--foreground-subtle))] leading-tight truncate">
+                    {daysToNextRank !== null ? (
+                      <span>{daysToNextRank}d to next rank tier</span>
+                    ) : (
+                      <span>Apex rank attained</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              {/* Lifetime Experience */}
+              <div className="border-t border-[hsl(var(--border))] pt-3 flex items-baseline justify-between">
+                <div>
+                  <span className="text-[10px] font-bold tracking-widest uppercase text-[hsl(var(--foreground-subtle))] block">
+                    Total Experience
+                  </span>
+                  <span className="text-[11px] text-[hsl(var(--foreground-subtle))]">
+                    Lifetime campaign points
+                  </span>
+                </div>
+                <span
+                  className="text-lg font-bold tabular-nums text-[hsl(var(--xp))]"
+                  style={{ fontFamily: "var(--font-barlow), sans-serif" }}
                 >
-                  Add some →
+                  {liveXp.toLocaleString()} XP
+                </span>
+              </div>
+            </section>
+
+            {/* ── 4. Priority Four: Core Attributes Ledger ── */}
+            <section
+              aria-labelledby="attributes-ledger-heading"
+              className="border border-[hsl(var(--border))] bg-[hsl(var(--surface-1))] p-5 rounded-sm shadow-[0_1px_3px_rgba(0,0,0,0.03)] space-y-4"
+            >
+              <div className="flex items-center justify-between border-b border-[hsl(var(--border))] pb-2.5">
+                <div>
+                  <h3
+                    id="attributes-ledger-heading"
+                    className="text-[10px] font-bold tracking-[0.14em] uppercase text-[hsl(var(--foreground-subtle))]"
+                  >
+                    Core Attributes // Progression
+                  </h3>
+                </div>
+                <Link
+                  href="/character"
+                  className="text-[11px] font-semibold text-[hsl(var(--primary))] hover:underline focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[hsl(var(--ring))]"
+                >
+                  Sheet →
                 </Link>
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {todayQuests.map((quest) => (
-                <QuestRow
-                  key={quest.id}
-                  quest={quest}
-                  inToday={true}
-                  onComplete={handleComplete}
-                  onAddToToday={addToToday}
-                  onRemoveFromToday={removeFromToday}
-                  onCompletionResult={handleCompletionResult}
-                />
-              ))}
-            </div>
-          )}
-        </section>
+              </div>
+
+              <div className="space-y-3">
+                {ATTR_ORDER.map((attr) => {
+                  const value = liveAttrs[attr];
+                  const pct = Math.min(100, Math.round((value / maxAttr) * 100));
+                  const attrColor = ATTR_COLORS[attr];
+
+                  return (
+                    <div key={attr} className="space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className="w-2 h-2 rounded-sm"
+                            style={{ backgroundColor: attrColor }}
+                            aria-hidden="true"
+                          />
+                          <span className="font-semibold text-[hsl(var(--foreground))]">
+                            {attributeLabel(attr)}
+                          </span>
+                        </div>
+                        <span
+                          className="font-bold tabular-nums text-[hsl(var(--foreground))]"
+                          style={{ fontFamily: "var(--font-barlow), sans-serif" }}
+                        >
+                          {value}
+                        </span>
+                      </div>
+
+                      <div className="h-2 w-full rounded-sm overflow-hidden bg-[hsl(var(--surface-2))] border border-[hsl(var(--border))]">
+                        <div
+                          className="h-full rounded-sm transition-all duration-500 ease-out"
+                          style={{
+                            width: `${pct}%`,
+                            backgroundColor: attrColor,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          </div>
+        </div>
       </div>
     </>
   );

@@ -125,7 +125,10 @@ export default {
         mono: ["var(--font-barlow)", "ui-monospace", "monospace"],
       },
 
-      /* Sidebar width token */
+      /* Sidebar spacing & width token */
+      spacing: {
+        sidebar: "220px",
+      },
       width: {
         sidebar: "220px",
       },

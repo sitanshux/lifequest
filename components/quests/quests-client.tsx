@@ -3,14 +3,13 @@
 /**
  * QuestsClient — the interactive quests experience.
  *
- * Manages:
- * - TODAY / ALL QUESTS tab state
- * - Quest list (optimistic updates on completion)
- * - TODAY localStorage via useToday()
- * - Create quest panel
- * - Completion toast
+ * Visual System:
+ * - Editorial Quest Board hierarchy
+ * - Newsreader serif headings & clean tabular meta
+ * - Clear distinction between active actionable quests and completed archive records
+ * - Thematic RPG empty states
  *
- * All mutations go through server actions. Client never touches XP/Gold.
+ * All mutations go through server actions. Client never touches XP/Gold directly.
  */
 
 import { useState, useCallback } from "react";
@@ -79,16 +78,15 @@ export function QuestsClient({ initialQuests, userId }: QuestsClientProps) {
 
   // Compute views
   const todayQuests = quests.filter((q) => isInToday(q.id));
-  const allQuests = [...quests].sort(
-    (a, b) => (a.completed ? 1 : 0) - (b.completed ? 1 : 0)
-  );
-
   const activeTodayQuests = todayQuests.filter((q) => !q.completed);
   const completedTodayQuests = todayQuests.filter((q) => q.completed);
 
-  const TABS: { id: Tab; label: string }[] = [
-    { id: "today", label: "TODAY" },
-    { id: "all",   label: "ALL QUESTS" },
+  const activeAllQuests = quests.filter((q) => !q.completed);
+  const completedAllQuests = quests.filter((q) => q.completed);
+
+  const TABS: { id: Tab; label: string; count: number }[] = [
+    { id: "today", label: "TODAY", count: todayQuests.length },
+    { id: "all",   label: "ALL QUESTS", count: quests.length },
   ];
 
   return (
@@ -115,28 +113,34 @@ export function QuestsClient({ initialQuests, userId }: QuestsClientProps) {
         />
       )}
 
-      <div className="max-w-3xl mx-auto">
-        {/* Page header */}
-        <div className="flex items-start justify-between gap-4 pb-4 mb-0">
-          <div>
+      <div className="max-w-4xl mx-auto space-y-6">
+        {/* Editorial Quest Board Header */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[hsl(var(--border))] pb-5">
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold tracking-[0.14em] uppercase text-[hsl(var(--foreground-subtle))] block">
+              Master Directives
+            </span>
             <h1
-              className="text-2xl font-bold tracking-tight"
-              style={{ fontFamily: "var(--font-barlow)" }}
+              className="text-2xl sm:text-3xl font-bold tracking-tight text-[hsl(var(--foreground))]"
+              style={{ fontFamily: "var(--font-newsreader), Georgia, serif" }}
             >
-              Quests
+              Quest Board
             </h1>
-            <p className="text-sm mt-0.5" style={{ color: "hsl(var(--foreground-muted))" }}>
-              {allQuests.filter(q => !q.completed).length} active &middot; {allQuests.filter(q => q.completed).length} completed
+            <p className="text-xs text-[hsl(var(--foreground-muted))]">
+              <span className="font-semibold text-[hsl(var(--foreground))]">{activeAllQuests.length}</span> active directives
+              {" · "}
+              <span className="font-semibold text-[hsl(var(--foreground))]">{completedAllQuests.length}</span> completed records
             </p>
           </div>
+
           <button
             onClick={() => setPanelOpen(true)}
             className={cn(
-              "flex items-center gap-1.5 px-3 py-2 rounded text-sm font-semibold",
+              "inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-sm text-xs font-semibold uppercase tracking-wider",
               "bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))]",
-              "hover:bg-[hsl(var(--primary-hover))] transition-colors duration-100",
+              "hover:bg-[hsl(var(--primary-hover))] transition-colors duration-100 shadow-sm",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]",
-              "mt-0.5"
+              "self-start sm:self-end"
             )}
             aria-label="Create new quest"
           >
@@ -145,13 +149,13 @@ export function QuestsClient({ initialQuests, userId }: QuestsClientProps) {
           </button>
         </div>
 
-        {/* Tab strip — border-bottom style, not pills */}
+        {/* Tab strip — editorial border-bottom style */}
         <div
           role="tablist"
           aria-label="Quest views"
-          className="flex border-b border-[hsl(var(--border))] mb-5"
+          className="flex border-b border-[hsl(var(--border))]"
         >
-          {TABS.map(({ id, label }) => (
+          {TABS.map(({ id, label, count }) => (
             <button
               key={id}
               role="tab"
@@ -160,14 +164,24 @@ export function QuestsClient({ initialQuests, userId }: QuestsClientProps) {
               aria-selected={activeTab === id}
               onClick={() => setActiveTab(id)}
               className={cn(
-                "px-4 py-2.5 text-sm font-semibold tracking-wide transition-colors duration-100",
+                "px-4 py-2.5 text-xs font-bold tracking-wider uppercase transition-colors duration-100 flex items-center gap-2",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] focus-visible:ring-inset",
                 activeTab === id
                   ? "border-b-2 border-[hsl(var(--xp))] text-[hsl(var(--foreground))] -mb-px"
                   : "text-[hsl(var(--foreground-muted))] hover:text-[hsl(var(--foreground))]"
               )}
             >
-              {label}
+              <span>{label}</span>
+              <span
+                className={cn(
+                  "px-1.5 py-0.2 rounded-sm text-[10px] tabular-nums font-semibold",
+                  activeTab === id
+                    ? "bg-[hsl(var(--xp)/0.12)] text-[hsl(var(--xp))]"
+                    : "bg-[hsl(var(--surface-2))] text-[hsl(var(--foreground-subtle))]"
+                )}
+              >
+                {count}
+              </span>
             </button>
           ))}
         </div>
@@ -178,41 +192,34 @@ export function QuestsClient({ initialQuests, userId }: QuestsClientProps) {
           id="panel-today"
           aria-labelledby="tab-today"
           hidden={activeTab !== "today"}
+          className="space-y-4"
         >
           {!isReady ? (
             // Hydrating from localStorage
-            <div className="space-y-2">
-              {[1,2,3].map(i => (
-                <div key={i} className="h-16 rounded border border-[hsl(var(--border))] skeleton" />
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-16 rounded-sm border border-[hsl(var(--border))] skeleton" />
               ))}
             </div>
           ) : todayQuests.length === 0 ? (
             <EmptyState
-              title="No quests selected for today."
-              description="Switch to All Quests and add some to your daily focus."
-              action={<button onClick={() => setActiveTab("all")} className="text-sm font-medium text-[hsl(var(--xp))] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] rounded">Browse All Quests</button>}
+              title="No Directives Assigned to Today's Campaign"
+              description="Choose objectives from your master quest log to focus your efforts and claim rewards."
+              action={
+                <button
+                  onClick={() => setActiveTab("all")}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-sm bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary-hover))] transition-colors duration-100 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                >
+                  Browse All Quests ({quests.length}) →
+                </button>
+              }
             />
           ) : (
-            <div className="space-y-2">
-              {activeTodayQuests.map((quest) => (
-                <QuestRow
-                  key={quest.id}
-                  quest={quest}
-                  inToday={true}
-                  onComplete={handleComplete}
-                  onAddToToday={addToToday}
-                  onRemoveFromToday={removeFromToday}
-                  onCompletionResult={handleCompletionResult}
-                />
-              ))}
-              {completedTodayQuests.length > 0 && (
-                <>
-                  {activeTodayQuests.length > 0 && (
-                    <div className="pt-2 pb-1">
-                      <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: "hsl(var(--foreground-subtle))", letterSpacing: "0.09em" }}>Completed</span>
-                    </div>
-                  )}
-                  {completedTodayQuests.map((quest) => (
+            <div className="space-y-3">
+              {/* Active Today Quests */}
+              {activeTodayQuests.length > 0 ? (
+                <div className="space-y-2.5">
+                  {activeTodayQuests.map((quest) => (
                     <QuestRow
                       key={quest.id}
                       quest={quest}
@@ -223,7 +230,37 @@ export function QuestsClient({ initialQuests, userId }: QuestsClientProps) {
                       onCompletionResult={handleCompletionResult}
                     />
                   ))}
-                </>
+                </div>
+              ) : (
+                <div className="border border-[hsl(var(--border))] bg-[hsl(var(--surface-1))] p-5 text-center rounded-sm">
+                  <p className="text-xs font-medium text-[hsl(var(--success))]">
+                    ✓ All today&apos;s campaign directives have been completed!
+                  </p>
+                </div>
+              )}
+
+              {/* Completed Today Quests */}
+              {completedTodayQuests.length > 0 && (
+                <div className="pt-4 space-y-2">
+                  <div className="flex items-center justify-between border-b border-[hsl(var(--border))] pb-1.5">
+                    <span className="text-[10px] font-bold tracking-[0.14em] uppercase text-[hsl(var(--foreground-subtle))]">
+                      Completed Today ({completedTodayQuests.length})
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {completedTodayQuests.map((quest) => (
+                      <QuestRow
+                        key={quest.id}
+                        quest={quest}
+                        inToday={true}
+                        onComplete={handleComplete}
+                        onAddToToday={addToToday}
+                        onRemoveFromToday={removeFromToday}
+                        onCompletionResult={handleCompletionResult}
+                      />
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
           )}
@@ -235,38 +272,71 @@ export function QuestsClient({ initialQuests, userId }: QuestsClientProps) {
           id="panel-all"
           aria-labelledby="tab-all"
           hidden={activeTab !== "all"}
+          className="space-y-4"
         >
-          {allQuests.length === 0 ? (
+          {quests.length === 0 ? (
             <EmptyState
-              title="Your quest log is empty."
-              description="Create your first quest to begin your journey."
+              title="Your Quest Log is Empty"
+              description="Pen your first real-life directive to initiate your adventurer's journey."
               action={
                 <button
                   onClick={() => setPanelOpen(true)}
-                  className={cn(
-                    "text-sm px-4 py-2 rounded border border-[hsl(var(--border))] font-medium",
-                    "text-[hsl(var(--foreground-muted))] hover:text-[hsl(var(--foreground))] hover:border-[hsl(var(--border-strong))]",
-                    "transition-colors duration-100",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
-                  )}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-sm bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary-hover))] transition-colors duration-100 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
                 >
-                  Create your first quest
+                  <Plus size={14} strokeWidth={2.5} />
+                  Pen your first quest
                 </button>
               }
             />
           ) : (
-            <div className="space-y-2">
-              {allQuests.map((quest) => (
-                <QuestRow
-                  key={quest.id}
-                  quest={quest}
-                  inToday={isInToday(quest.id)}
-                  onComplete={handleComplete}
-                  onAddToToday={addToToday}
-                  onRemoveFromToday={removeFromToday}
-                  onCompletionResult={handleCompletionResult}
-                />
-              ))}
+            <div className="space-y-4">
+              {/* Active quests group */}
+              {activeAllQuests.length > 0 && (
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between border-b border-[hsl(var(--border))] pb-1.5">
+                    <span className="text-[10px] font-bold tracking-[0.14em] uppercase text-[hsl(var(--foreground-subtle))]">
+                      Active Directives ({activeAllQuests.length})
+                    </span>
+                  </div>
+                  <div className="space-y-2.5">
+                    {activeAllQuests.map((quest) => (
+                      <QuestRow
+                        key={quest.id}
+                        quest={quest}
+                        inToday={isInToday(quest.id)}
+                        onComplete={handleComplete}
+                        onAddToToday={addToToday}
+                        onRemoveFromToday={removeFromToday}
+                        onCompletionResult={handleCompletionResult}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Completed records group */}
+              {completedAllQuests.length > 0 && (
+                <div className="pt-3 space-y-2.5">
+                  <div className="flex items-center justify-between border-b border-[hsl(var(--border))] pb-1.5">
+                    <span className="text-[10px] font-bold tracking-[0.14em] uppercase text-[hsl(var(--foreground-subtle))]">
+                      Archived & Completed ({completedAllQuests.length})
+                    </span>
+                  </div>
+                  <div className="space-y-2">
+                    {completedAllQuests.map((quest) => (
+                      <QuestRow
+                        key={quest.id}
+                        quest={quest}
+                        inToday={isInToday(quest.id)}
+                        onComplete={handleComplete}
+                        onAddToToday={addToToday}
+                        onRemoveFromToday={removeFromToday}
+                        onCompletionResult={handleCompletionResult}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -285,14 +355,25 @@ function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
-      <p className="text-sm font-medium" style={{ color: "hsl(var(--foreground-muted))" }}>
-        {title}
-      </p>
-      <p className="text-xs" style={{ color: "hsl(var(--foreground-subtle))" }}>
-        {description}
-      </p>
-      {action}
+    <div className="border border-dashed border-[hsl(var(--border-strong))] bg-[hsl(var(--surface-1))] p-8 sm:p-12 text-center rounded-sm space-y-3">
+      <div className="w-10 h-10 mx-auto rounded-full bg-[hsl(var(--surface-2))] border border-[hsl(var(--border))] flex items-center justify-center text-[hsl(var(--foreground-subtle))]">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" />
+          <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+        </svg>
+      </div>
+      <div className="space-y-1">
+        <h3
+          className="text-base font-semibold text-[hsl(var(--foreground))]"
+          style={{ fontFamily: "var(--font-newsreader), Georgia, serif" }}
+        >
+          {title}
+        </h3>
+        <p className="text-xs text-[hsl(var(--foreground-muted))] max-w-sm mx-auto leading-relaxed">
+          {description}
+        </p>
+      </div>
+      {action && <div className="pt-2">{action}</div>}
     </div>
   );
 }
